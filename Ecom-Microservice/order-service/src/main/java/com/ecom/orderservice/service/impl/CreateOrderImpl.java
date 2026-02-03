@@ -26,7 +26,7 @@ public class CreateOrderImpl implements CreateOrder {
     private OrderRepo orderRepo;
 
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClientBuilder;
 
     @Override
     public Long createOrder(CreateOrderRequest createOrderRequest) throws IllegalAccessException {
@@ -38,13 +38,14 @@ public class CreateOrderImpl implements CreateOrder {
         List<String> skuCodes = order1.stream().map(OrderLineItems::getSkuCode).toList();
 
         // check inventory for stock
-        InventoryResponse[] inventoryResponses = webClient.get()
-                .uri("http://localhost:8088/api/inventory",uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
+        InventoryResponse[] inventoryResponses = webClientBuilder.build().get()
+                .uri("http://inventory-service/api/inventory",uriBuilder ->
+                        uriBuilder.queryParam("skuCode",skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
                 .block();
 
-        boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(InventoryResponse::isInStock);
+        boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(InventoryResponse::getIsInStock);
 
         if(allProductsInStock)
             orderRepo.save(order);
