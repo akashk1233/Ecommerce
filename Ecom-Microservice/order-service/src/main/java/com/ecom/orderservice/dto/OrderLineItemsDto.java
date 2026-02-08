@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -17,6 +19,6 @@ public class OrderLineItemsDto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderLineItemId;
     private String skuCode;
-    private Long price;
-    private int quantity;
+    private BigDecimal price;
+    private Integer quantity;
 }
