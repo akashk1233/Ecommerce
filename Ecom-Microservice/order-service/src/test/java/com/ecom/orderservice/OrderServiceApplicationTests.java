@@ -11,4 +11,9 @@ class OrderServiceApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	public void mustCreateOrder(){
+
+	}
+
 }
