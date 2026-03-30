@@ -3,12 +3,14 @@ package com.ecom.orderservice.service.impl;
 import com.ecom.orderservice.dto.CreateOrderRequest;
 import com.ecom.orderservice.dto.InventoryResponse;
 import com.ecom.orderservice.dto.OrderLineItemsDto;
+import com.ecom.orderservice.event.OrderPlacedEvent;
 import com.ecom.orderservice.exception.ListNotFoundException;
 import com.ecom.orderservice.model.Order;
 import com.ecom.orderservice.model.OrderLineItems;
 import com.ecom.orderservice.repository.OrderRepo;
 import com.ecom.orderservice.service.CreateOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -28,6 +30,8 @@ public class CreateOrderImpl implements CreateOrder {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    @Autowired
+    private KafkaTemplate<String,OrderPlacedEvent> kafkaTemplate;
     @Override
     public Long createOrder(CreateOrderRequest createOrderRequest) throws IllegalAccessException {
         List<OrderLineItems> order1 = getOrderLineItemList(createOrderRequest);
@@ -48,7 +52,10 @@ public class CreateOrderImpl implements CreateOrder {
         boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(InventoryResponse::getIsInStock);
 
         if(allProductsInStock)
+        {
             orderRepo.save(order);
+            kafkaTemplate.send("notificationTopic", OrderPlacedEvent.builder().orderNumber(order.getOrderNumber()).build());
+        }
         else
             throw new IllegalArgumentException("item out of stock");
         return order.getOrderId();
