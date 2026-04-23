@@ -9,6 +9,7 @@ import com.ecom.orderservice.model.Order;
 import com.ecom.orderservice.model.OrderLineItems;
 import com.ecom.orderservice.repository.OrderRepo;
 import com.ecom.orderservice.service.CreateOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class CreateOrderImpl implements CreateOrder {
     @Autowired
     private OrderRepo orderRepo;
@@ -54,6 +56,10 @@ public class CreateOrderImpl implements CreateOrder {
         if(allProductsInStock)
         {
             orderRepo.save(order);
+            String resp = webClientBuilder.build().patch()
+                            .uri("http://inventory-service/api/inventory",
+                                    uriBuilder ->uriBuilder.queryParam("skuCodes",skuCodes).build()).toString();
+            log.info("Invetory Status{}"+resp);
             kafkaTemplate.send("notificationTopic", OrderPlacedEvent.builder().orderNumber(order.getOrderNumber()).build());
         }
         else

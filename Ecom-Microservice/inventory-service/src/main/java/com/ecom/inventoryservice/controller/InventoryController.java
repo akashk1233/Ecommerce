@@ -26,4 +26,9 @@ public class InventoryController {
         log.info("wait ended");
         return new ResponseEntity<>(inventoryService.isInStock(skuCode),HttpStatus.OK);
     }
+
+    @PatchMapping
+    public ResponseEntity<String> reduceQuantity(@RequestParam List<String> skuCodes){
+        return new ResponseEntity<>(inventoryService.reduceStock(skuCodes),HttpStatus.OK);
+    }
 }
