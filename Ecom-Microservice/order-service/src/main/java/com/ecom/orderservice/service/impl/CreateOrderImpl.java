@@ -10,6 +10,7 @@ import com.ecom.orderservice.model.Order;
 import com.ecom.orderservice.model.OrderLineItems;
 import com.ecom.orderservice.repository.OrderRepo;
 import com.ecom.orderservice.service.CreateOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class CreateOrderImpl implements CreateOrder {
     @Autowired
     private OrderRepo orderRepo;

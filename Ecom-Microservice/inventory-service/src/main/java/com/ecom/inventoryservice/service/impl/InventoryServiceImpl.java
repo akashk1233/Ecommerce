@@ -82,4 +82,13 @@ public class InventoryServiceImpl implements InventoryService {
         inventoryRepo.saveAll(inventories);
         return "Inventory Updated Sucessfully";
     }
+
+    @Override
+    public String reduceStock(List<String> skuCodes) {
+        List<Inventory> inventries = inventoryRepo.findBySkuCodeIn(skuCodes);
+        if(inventries.stream().anyMatch(inv->inv.getQuantity() < 0)) return "Item Is Out Of stock";
+        inventries.forEach(inventory-> inventory.setQuantity(inventory.getQuantity() - 1));
+        inventoryRepo.saveAll(inventries);
+        return "Quantity Updated Successfully";
+    }
 }
