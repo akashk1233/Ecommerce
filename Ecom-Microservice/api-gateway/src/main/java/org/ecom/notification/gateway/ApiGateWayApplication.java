@@ -1,4 +1,4 @@
-package org.ecom.gateway;
+package org.ecom.notification.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
